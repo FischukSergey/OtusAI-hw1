@@ -1,0 +1,34 @@
+# Binaries
+/bin/
+*.exe
+*.test
+*.out
+
+# Build artifacts
+/dist/
+/tmp/
+
+# Binaries
+/main-service
+/auth-proxy
+/notification-worker
+/message-expirer
+
+# Go
+/coverage.out
+
+# IDE
+.DS_Store
+.idea/
+/.cursor/
+/.vscode/
+
+# Local environment
+.env
+.env.*
+
+# Dependency caches
+/vendor/
+
+/configs/config.auth-proxy.docker.local.yaml
+/configs/config.main-service.docker.local.yaml
