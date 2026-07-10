@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мини-анкета</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 40px;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #1a202c;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #718096;
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    .question-block {
+      margin-bottom: 24px;
+    }
+
+    .question-block label.question-label {
+      display: block;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #2d3748;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #667eea;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #2d3748;
+      background: #fff;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      border-color: #667eea;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
+      color: #4a5568;
+      font-size: 0.93rem;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .radio-group label:hover {
+      border-color: #667eea;
+      background: #f7f8ff;
+    }
+
+    .radio-group input[type="radio"] {
+      accent-color: #667eea;
+      width: 16px;
+      height: 16px;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button[type="submit"]:hover { opacity: 0.92; }
+    button[type="submit"]:active { transform: scale(0.98); }
+    button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .thank-you {
+      display: none;
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    .thank-you .icon { font-size: 3rem; margin-bottom: 16px; }
+
+    .thank-you h2 {
+      font-size: 1.5rem;
+      color: #1a202c;
+      margin-bottom: 8px;
+    }
+
+    .thank-you p {
+      color: #718096;
+      font-size: 0.95rem;
+    }
+
+    .error-msg {
+      color: #e53e3e;
+      font-size: 0.88rem;
+      margin-top: 16px;
+      text-align: center;
+      display: none;
+    }
+
+    .loader {
+      text-align: center;
+      color: #718096;
+      padding: 40px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="loader" class="loader">Загрузка вопросов…</div>
+
+    <form id="survey-form" style="display:none">
+      <h1>Мини-анкета</h1>
+      <p class="subtitle">Пожалуйста, ответьте на несколько вопросов</p>
+      <div id="questions-container"></div>
+      <button type="submit">Отправить ответы</button>
+      <p class="error-msg" id="error-msg">Ошибка при отправке. Попробуйте ещё раз.</p>
+    </form>
+
+    <div class="thank-you" id="thank-you">
+      <div class="icon">🎉</div>
+      <h2>Спасибо за ответы!</h2>
+      <p>Ваши ответы успешно сохранены.</p>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+
+    async function loadQuestions() {
+      try {
+        const res = await fetch(`${API}/questions`);
+        if (!res.ok) throw new Error('Ошибка загрузки');
+        const questions = await res.json();
+        renderForm(questions);
+      } catch (e) {
+        document.getElementById('loader').textContent = 'Не удалось загрузить вопросы. Проверьте соединение.';
+      }
+    }
+
+    function renderForm(questions) {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+
+      questions.forEach(q => {
+        const block = document.createElement('div');
+        block.className = 'question-block';
+
+        const label = document.createElement('label');
+        label.className = 'question-label';
+        label.textContent = `${q.id}. ${q.text}`;
+        block.appendChild(label);
+
+        if (q.type === 'text') {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.name = `q_${q.id}`;
+          input.placeholder = 'Ваш ответ…';
+          block.appendChild(input);
+
+        } else if (q.type === 'radio') {
+          const group = document.createElement('div');
+          group.className = 'radio-group';
+          q.options.forEach(opt => {
+            const lbl = document.createElement('label');
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = `q_${q.id}`;
+            radio.value = opt;
+            lbl.appendChild(radio);
+            lbl.appendChild(document.createTextNode(opt));
+            group.appendChild(lbl);
+          });
+          block.appendChild(group);
+
+        } else if (q.type === 'select') {
+          const select = document.createElement('select');
+          select.name = `q_${q.id}`;
+          const defaultOpt = document.createElement('option');
+          defaultOpt.value = '';
+          defaultOpt.textContent = '— Выберите вариант —';
+          defaultOpt.disabled = true;
+          defaultOpt.selected = true;
+          select.appendChild(defaultOpt);
+          q.options.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt;
+            option.textContent = opt;
+            select.appendChild(option);
+          });
+          block.appendChild(select);
+        }
+
+        container.appendChild(block);
+      });
+
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('survey-form').style.display = 'block';
+
+      // Сохраняем вопросы для сбора ответов
+      document.getElementById('survey-form').dataset.questions = JSON.stringify(questions);
+    }
+
+    document.getElementById('survey-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const errorMsg = document.getElementById('error-msg');
+      btn.disabled = true;
+      errorMsg.style.display = 'none';
+
+      const questions = JSON.parse(e.target.dataset.questions);
+      const answers = questions.map(q => {
+        let value = '';
+        if (q.type === 'radio') {
+          const checked = e.target.querySelector(`input[name="q_${q.id}"]:checked`);
+          value = checked ? checked.value : '';
+        } else {
+          const field = e.target.querySelector(`[name="q_${q.id}"]`);
+          value = field ? field.value : '';
+        }
+        return { question_id: q.id, value };
+      });
+
+      try {
+        const res = await fetch(`${API}/answers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ answers }),
+        });
+        if (!res.ok) throw new Error('Ошибка сервера');
+
+        document.getElementById('survey-form').style.display = 'none';
+        document.getElementById('thank-you').style.display = 'block';
+      } catch (err) {
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
+      }
+    });
+
+    loadQuestions();
+  </script>
+</body>
+</html>
