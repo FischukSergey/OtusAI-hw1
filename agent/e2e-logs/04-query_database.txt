@@ -1,0 +1,23 @@
+======== RUN 04 ========
+QUERY: какой язык программирования выбирают чаще всего?
+----
+/Users/sergeymac/dev/OtusAI-hw1/agent/.venv/lib/python3.13/site-packages/langgraph/checkpoint/base/__init__.py:18: LangChainPendingDeprecationWarning: The default value of `allowed_objects` will change in a future version. Pass an explicit value (e.g., allowed_objects='messages' or allowed_objects='core') to suppress this warning.
+  from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+[agent] user_query='какой язык программирования выбирают чаще всего?'
+[tool:get_questions] [{"id": 1, "text": "Как вас зовут?", "type": "text"}, {"id": 2, "text": "Какой ваш любимый язык программирования?", "type": "radio", "options": ["Go", "Python", "JavaScript", "Java", "Другой"]}, {"id": 3, "text": "Какой у вас опыт в разработке?", "type": "select", "options": ["Менее 1 года", "1–3 года", "3–5 лет", "Более 5 лет"]}, {"id": 4, "text": "Что вы хотите изучить в этом курсе?", "type": "text"}, {"id": 5, "text": "Откуда вы узнали о курсе?", "type": "radio", "options": ["Друзья / коллеги", "Соцсети", "Поисковик", "Реклама"]}]
+[tool:query_database] question='Какой язык программирования выбирают чаще всего?'
+[tool:query_database] sql=SELECT a.value, COUNT(*) AS cnt FROM answers a JOIN questions q ON a.question_id = q.id WHERE q.text = 'Какой ваш любимый язык программирования?' GROUP BY a.value ORDER BY cnt DESC LIMIT 1
+[tool:query_database] rows=[('Python', 1)]
+[trace:AIMessage] tool_calls=[{'name': 'get_questions', 'args': {}, 'id': '688769678', 'type': 'tool_call'}]
+[trace:ToolMessage] name=get_questions content=[{"id": 1, "text": "Как вас зовут?", "type": "text"}, {"id": 2, "text": "Какой ваш любимый язык программирования?", "type": "radio", "options": ["Go", "Python", "JavaScript", "Java", "Другой"]}, {"id": 3, "text": "Какой у вас опыт в разработке?", "type": "select", "options": ["Менее 1 года", "1–3 года", "3–5 лет", "Более 5 лет"]}, {"id": 4, "text": "Что вы хотите изучить в этом курсе?", "type": "text"}, {"id": 5, "text": "Откуда вы узнали о курсе?", "type": "radio", "options": ["Друзья / коллеги", "Соцсети", "Поисковик", "Реклама"]}]
+[trace:AIMessage] tool_calls=[{'name': 'query_database', 'args': {'question': 'Какой язык программирования выбирают чаще всего?'}, 'id': '337444031', 'type': 'tool_call'}]
+[trace:ToolMessage] name=query_database content=Question: Какой язык программирования выбирают чаще всего?
+SQL: SELECT a.value, COUNT(*) AS cnt FROM answers a JOIN questions q ON a.question_id = q.id WHERE q.text = 'Какой ваш любимый язык программирования?' GROUP BY a.value ORDER BY cnt DESC LIMIT 1
+Result: [('Python', 1)]
+
+
+Status: success
+Action: query_database("Какой язык программирования выбирают чаще всего?")
+Data: Python (1 выбор)
+Errors: ->
+EXIT:

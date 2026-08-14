@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
-	"time"
+	"strconv"
+	"strings"
 )
 
 type Question struct {
@@ -21,26 +21,9 @@ type Answer struct {
 	Value      string `json:"value"`
 }
 
-type Submission struct {
-	Answers   []Answer  `json:"answers"`
-	CreatedAt time.Time `json:"created_at"`
+type SubmissionRequest struct {
+	Answers []Answer `json:"answers"`
 }
-
-var questions = []Question{
-	{ID: 1, Text: "Как вас зовут?", Type: "text"},
-	{ID: 2, Text: "Какой ваш любимый язык программирования?", Type: "radio",
-		Options: []string{"Go", "Python", "JavaScript", "Java", "Другой"}},
-	{ID: 3, Text: "Какой у вас опыт в разработке?", Type: "select",
-		Options: []string{"Менее 1 года", "1–3 года", "3–5 лет", "Более 5 лет"}},
-	{ID: 4, Text: "Что вы хотите изучить в этом курсе?", Type: "text"},
-	{ID: 5, Text: "Откуда вы узнали о курсе?", Type: "radio",
-		Options: []string{"Друзья / коллеги", "Соцсети", "Поисковик", "Реклама"}},
-}
-
-var (
-	mu          sync.Mutex
-	submissions []Submission
-)
 
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -55,37 +38,10 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func handleQuestions(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
+func writeJSON(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(questions)
-}
-
-func handleAnswers(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var sub Submission
-	if err := json.NewDecoder(r.Body).Decode(&sub); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-	sub.CreatedAt = time.Now()
-
-	mu.Lock()
-	submissions = append(submissions, sub)
-	total := len(submissions)
-	mu.Unlock()
-
-	log.Printf("Получен ответ #%d: %+v", total, sub.Answers)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(v)
 }
 
 func main() {
@@ -99,10 +55,108 @@ func main() {
 		frontendDir = "../frontend"
 	}
 
+	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./data/survey.db"
+	}
+
+	store, err := openStore(dbPath)
+	if err != nil {
+		log.Fatalf("init db: %v", err)
+	}
+	defer store.Close()
+	log.Printf("SQLite: %s", dbPath)
+
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/questions", corsMiddleware(handleQuestions))
-	mux.HandleFunc("/answers", corsMiddleware(handleAnswers))
+	mux.HandleFunc("/questions", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		questions, err := store.ListQuestions()
+		if err != nil {
+			http.Error(w, "db error", http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, http.StatusOK, questions)
+	}))
+
+	mux.HandleFunc("/answers", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var req SubmissionRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+		if len(req.Answers) == 0 {
+			http.Error(w, "answers required", http.StatusBadRequest)
+			return
+		}
+
+		id, err := store.CreateSubmission(req.Answers)
+		if err != nil {
+			log.Printf("create submission error: %v", err)
+			http.Error(w, "db error", http.StatusInternalServerError)
+			return
+		}
+		log.Printf("Получен ответ #%d: %+v", id, req.Answers)
+		writeJSON(w, http.StatusOK, map[string]any{"status": "ok", "id": id})
+	}))
+
+	mux.HandleFunc("/submissions", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		items, err := store.ListSubmissions()
+		if err != nil {
+			http.Error(w, "db error", http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, http.StatusOK, items)
+	}))
+
+	mux.HandleFunc("/submissions/", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		idStr := strings.TrimPrefix(r.URL.Path, "/submissions/")
+		idStr = strings.Trim(idStr, "/")
+		id, err := strconv.ParseInt(idStr, 10, 64)
+		if err != nil || id <= 0 {
+			http.Error(w, "invalid id", http.StatusBadRequest)
+			return
+		}
+		item, err := store.GetSubmission(id)
+		if err != nil {
+			http.Error(w, "db error", http.StatusInternalServerError)
+			return
+		}
+		if item == nil {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+		writeJSON(w, http.StatusOK, item)
+	}))
+
+	mux.HandleFunc("/stats", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		stats, err := store.GetStats()
+		if err != nil {
+			http.Error(w, "db error", http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, http.StatusOK, stats)
+	}))
 
 	fs := http.FileServer(http.Dir(frontendDir))
 	mux.Handle("/", fs)

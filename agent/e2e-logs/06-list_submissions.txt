@@ -1,0 +1,16 @@
+======== RUN 06 ========
+QUERY: покажи список заполненных анкет
+----
+/Users/sergeymac/dev/OtusAI-hw1/agent/.venv/lib/python3.13/site-packages/langgraph/checkpoint/base/__init__.py:18: LangChainPendingDeprecationWarning: The default value of `allowed_objects` will change in a future version. Pass an explicit value (e.g., allowed_objects='messages' or allowed_objects='core') to suppress this warning.
+  from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+[agent] user_query='покажи список заполненных анкет'
+[tool:list_submissions] [{"id": 1, "created_at": "2026-08-13T21:02:09Z", "answers": [{"question_id": 1, "value": "Alex"}, {"question_id": 2, "value": "Python"}, {"question_id": 3, "value": "1–3 года"}, {"question_id": 4, "value": "LangChain"}, {"question_id": 5, "value": "Друзья / коллеги"}]}]
+[trace:AIMessage] tool_calls=[{'name': 'list_submissions', 'args': {}, 'id': '873495751', 'type': 'tool_call'}]
+[trace:ToolMessage] name=list_submissions content=[{"id": 1, "created_at": "2026-08-13T21:02:09Z", "answers": [{"question_id": 1, "value": "Alex"}, {"question_id": 2, "value": "Python"}, {"question_id": 3, "value": "1–3 года"}, {"question_id": 4, "value": "LangChain"}, {"question_id": 5, "value": "Друзья / коллеги"}]}]
+
+
+Status: success
+Action: list_submissions
+Data: [{"id": 1, "created_at": "2026-08-13T21:02:09Z", "answers": [{"question_id": 1, "value": "Alex"}, {"question_id": 2, "value": "Python"}, {"question_id": 3, "value": "1–3 года"}, {"question_id": 4, "value": "LangChain"}, {"question_id": 5, "value": "Друзья / коллеги"}]}]
+Errors: ->
+EXIT:

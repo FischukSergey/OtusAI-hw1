@@ -1,101 +1,135 @@
-# Мини-анкета
+# Мини-анкета + LangChain-агент
 
-Full-stack приложение «Мини-анкета» на Go + HTML/JS.  
-Домашнее задание курса OtusAI · HW1.
+Full-stack приложение «Мини-анкета» на Go + HTML/JS и NL-агент на LangChain.  
+Домашнее задание курса OtusAI.
 
 ## Описание
 
-Приложение позволяет пройти небольшую анкету прямо в браузере:
-
-- Backend на Go предоставляет REST API
+- Backend на Go предоставляет REST API и хранит данные в **SQLite**
 - Frontend — одна HTML-страница с динамической формой
-- Ответы хранятся в памяти сервера
+- Папка [`agent/`](agent/) — LangChain-агент: естественный язык → API tools / NL→SQL
 
 ## Быстрый старт (Docker)
 
 **Требования:** [Docker](https://docs.docker.com/get-docker/) и Docker Compose v2
 
 ```bash
-# 1. Клонировать репозиторий
 git clone https://github.com/sergeymac/otusai-hw1.git
 cd otusai-hw1
-
-# 2. Собрать и запустить контейнер
 docker compose up --build
-
-# 3. Открыть в браузере
-open http://localhost:8080
+open http://localhost:8090
 ```
 
 Остановить: `Ctrl+C`, затем `docker compose down`
 
+Данные SQLite сохраняются в volume `survey-data`.  
+Снаружи контейнер доступен на порту **8090** (внутри сервиса по-прежнему `8080`).
+
 ## Запуск без Docker (локально)
 
-**Требования:** Go 1.26+
+**Требования:** Go 1.25+
 
 ```bash
 cd backend
-go run main.go
-# Сервер запустится на http://localhost:8080
+PORT=8090 go run .
+# Сервер: http://localhost:8090
+# БД: ./data/survey.db (создаётся автоматически)
 ```
 
-> Frontend автоматически раздаётся по адресу `http://localhost:8080`
+Изменить порт / путь к БД:
 
-Изменить порт:
 ```bash
-PORT=3000 go run main.go
+PORT=8090 DB_PATH=./data/survey.db go run .
 ```
 
 ## API
 
-| Метод | Путь         | Описание                              |
-|-------|--------------|---------------------------------------|
-| GET   | `/questions` | Список вопросов анкеты (JSON)         |
-| POST  | `/answers`   | Сохранить ответы пользователя (JSON)  |
+| Метод | Путь | Описание |
+|-------|------|----------|
+| GET | `/questions` | Список вопросов анкеты |
+| POST | `/answers` | Сохранить ответы (в SQLite) |
+| GET | `/submissions` | Список заполненных анкет |
+| GET | `/submissions/{id}` | Одна анкета |
+| GET | `/stats` | Агрегированная статистика |
+
+Базовый URL в примерах: `http://localhost:8090`.
 
 ### GET /questions
 
 ```bash
-curl http://localhost:8080/questions
-```
-
-Пример ответа:
-```json
-[
-  { "id": 1, "text": "Как вас зовут?", "type": "text" },
-  { "id": 2, "text": "Какой ваш любимый язык программирования?", "type": "radio",
-    "options": ["Go", "Python", "JavaScript", "Java", "Другой"] }
-]
+curl http://localhost:8090/questions
 ```
 
 ### POST /answers
 
 ```bash
-curl -X POST http://localhost:8080/answers \
+curl -X POST http://localhost:8090/answers \
   -H "Content-Type: application/json" \
-  -d '{"answers": [{"question_id": 1, "value": "Иван"}, {"question_id": 2, "value": "Go"}]}'
+  -d '{"answers": [{"question_id": 1, "value": "Иван"}, {"question_id": 2, "value": "Go"}, {"question_id": 3, "value": "1–3 года"}, {"question_id": 4, "value": "AI"}, {"question_id": 5, "value": "Соцсети"}]}'
 ```
 
-Пример ответа:
-```json
-{ "status": "ok" }
+Ответ: `{"status":"ok","id":1}`
+
+### GET /stats
+
+```bash
+curl http://localhost:8090/stats
 ```
+
+## LangChain-агент
+
+Инструкция по запуску (LM Studio + CLI): **[`agent/README.md`](agent/README.md)**.
+
+Кратко:
+
+```bash
+# 1) API уже запущен на :8090
+# 2) LM Studio Local Server на :1234
+cd agent
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+python main.py "покажи вопросы анкеты"
+```
+
+### Контракт ответа агента
+
+```text
+Status: success | error
+Action: <описание>
+Data: <результат>
+Errors: <ошибка или ->
+```
+
+Подробности: [`agent/prompts.py`](agent/prompts.py), [`agent/PROMPTS.md`](agent/PROMPTS.md).
+
+### Подтверждение критериев ДЗ
+
+Сводная таблица ссылок (файл/строки tools, debug-лог, примеры): [`agent/CRITERIA.md`](agent/CRITERIA.md).  
+Проверочные запросы: [`agent/REPORT.md`](agent/REPORT.md).
 
 ## Структура проекта
 
 ```
 .
 ├── backend/
-│   ├── main.go          # HTTP-сервер (Go)
+│   ├── main.go          # HTTP-сервер
+│   ├── db.go            # SQLite store
 │   └── go.mod
 ├── frontend/
-│   └── index.html       # SPA (HTML + CSS + JS)
-├── screenshots/         # Скриншоты работы
-├── Dockerfile           # Multi-stage сборка
+│   └── index.html
+├── agent/               # LangChain-агент (HW)
+│   ├── main.py
+│   ├── agent.py
+│   ├── tools_api.py
+│   ├── tools_sql.py
+│   ├── prompts.py
+│   ├── REPORT.md
+│   ├── PROMPTS.md
+│   └── README.md
+├── Dockerfile
 ├── docker-compose.yml
-├── PLAN.md              # План реализации
-├── CHECKLIST.md         # Чек-лист выполнения
-└── PROMPTS.md           # Использованные промты
+└── README.md
 ```
 
 ## Скриншоты
