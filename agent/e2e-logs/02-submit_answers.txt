@@ -1,0 +1,13 @@
+======== RUN 02b submit ========
+/Users/sergeymac/dev/OtusAI-hw1/agent/.venv/lib/python3.13/site-packages/langgraph/checkpoint/base/__init__.py:18: LangChainPendingDeprecationWarning: The default value of `allowed_objects` will change in a future version. Pass an explicit value (e.g., allowed_objects='messages' or allowed_objects='core') to suppress this warning.
+  from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+[agent] user_query='вызови submit_answers и сохрани анкету со следующими answers_json: [{"question_id":1,"value":"Maria"},{"question_id":2,"value":"Go"},{"question_id":3,"value":"3–5 лет"},{"question_id":4,"value":"агентов"},{"question_id":5,"value":"Соцсети"}]'
+[tool:submit_answers] {"id": 2, "status": "ok"}
+[trace:AIMessage] tool_calls=[{'name': 'submit_answers', 'args': {'answers_json': '[{"question_id":1,"value":"Maria"},{"question_id":2,"value":"Go"},{"question_id":3,"value":"3–5 лет"},{"question_id":4,"value":"агентов"},{"question_id":5,"value":"Соцсети"}]'}, 'id': '622805220', 'type': 'tool_call'}]
+[trace:ToolMessage] name=submit_answers content={"id": 2, "status": "ok"}
+
+
+Status: success
+Action: Вызов submit_answers с переданным JSON-списком ответов.
+Data: Анкета успешно сохранена, присвоен ID 2.
+Errors: ->

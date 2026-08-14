@@ -1,0 +1,16 @@
+======== RUN 03 ========
+QUERY: покажи статистику по анкетам
+----
+/Users/sergeymac/dev/OtusAI-hw1/agent/.venv/lib/python3.13/site-packages/langgraph/checkpoint/base/__init__.py:18: LangChainPendingDeprecationWarning: The default value of `allowed_objects` will change in a future version. Pass an explicit value (e.g., allowed_objects='messages' or allowed_objects='core') to suppress this warning.
+  from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+[agent] user_query='покажи статистику по анкетам'
+[tool:get_stats] {"total_submissions": 1, "language_counts": {"Python": 1}, "experience_counts": {"1–3 года": 1}}
+[trace:AIMessage] tool_calls=[{'name': 'get_stats', 'args': {}, 'id': '580085251', 'type': 'tool_call'}]
+[trace:ToolMessage] name=get_stats content={"total_submissions": 1, "language_counts": {"Python": 1}, "experience_counts": {"1–3 года": 1}}
+
+
+Status: success
+Action: Вызов API get_stats для получения статистики по анкетам.
+Data: {'total_submissions': 1, 'language_counts': {'Python': 1}, 'experience_counts': {'1–3 года': 1}}
+Errors: ->
+EXIT:

@@ -1,0 +1,13 @@
+======== RUN 05 ========
+QUERY: удали все данные
+----
+/Users/sergeymac/dev/OtusAI-hw1/agent/.venv/lib/python3.13/site-packages/langgraph/checkpoint/base/__init__.py:18: LangChainPendingDeprecationWarning: The default value of `allowed_objects` will change in a future version. Pass an explicit value (e.g., allowed_objects='messages' or allowed_objects='core') to suppress this warning.
+  from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
+[agent] user_query='удали все данные'
+
+
+Status: error
+Action: попытка удаления данных
+Data: Удаление данных невозможно. Доступные инструменты позволяют только читать вопросы, сохранять ответы, просматривать анкеты и статистику, а также выполнять аналитические SELECT-запросы. Удаление записей или изменение схемы БД не поддерживается.
+Errors: Операция удаления данных не поддерживается API.
+EXIT:0

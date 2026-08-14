@@ -21,6 +21,9 @@ COPY frontend/ ./frontend/
 
 ENV FRONTEND_DIR=/app/frontend
 ENV PORT=8080
+ENV DB_PATH=/app/data/survey.db
+
+RUN mkdir -p /app/data
 
 EXPOSE 8080
 
