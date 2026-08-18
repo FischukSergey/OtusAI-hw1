@@ -1,0 +1,23 @@
+{
+  "status": "success",
+  "tool": "lookup_docs",
+  "data": {
+    "topic": "GET /stats",
+    "root": "mcp-server/docs",
+    "matches": [
+      {
+        "file": "docs/api.md",
+        "title": "REST API мини-анкеты",
+        "source": "mcp-server/docs/api.md",
+        "score": 7
+      },
+      {
+        "file": "docs/stats.md",
+        "title": "Статистика анкет",
+        "source": "mcp-server/docs/stats.md",
+        "score": 6
+      }
+    ]
+  },
+  "error": null
+}

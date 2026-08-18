@@ -1,6 +1,7 @@
-# Мини-анкета + LangChain-агент
+# Мини-анкета + LangChain-агент + MCP-сервер
 
-Full-stack приложение «Мини-анкета» на Go + HTML/JS и NL-агент на LangChain.  
+Full-stack приложение «Мини-анкета» на Go + HTML/JS, NL-агент на LangChain
+и MCP-сервер для агента в Cursor.  
 Домашнее задание курса OtusAI.
 
 ## Описание
@@ -8,6 +9,7 @@ Full-stack приложение «Мини-анкета» на Go + HTML/JS и N
 - Backend на Go предоставляет REST API и хранит данные в **SQLite**
 - Frontend — одна HTML-страница с динамической формой
 - Папка [`agent/`](agent/) — LangChain-агент: естественный язык → API tools / NL→SQL
+- Папка [`mcp-server/`](mcp-server/) — MCP-сервер для Cursor (stdio + 4 tools)
 
 ## Быстрый старт (Docker)
 
@@ -103,6 +105,23 @@ Errors: <ошибка или ->
 
 Подробности: [`agent/prompts.py`](agent/prompts.py), [`agent/PROMPTS.md`](agent/PROMPTS.md).
 
+## MCP-сервер (Cursor)
+
+Инструкция, контракт tools и ссылки на строки: **[`mcp-server/README.md`](mcp-server/README.md)**.
+
+Кратко:
+
+```bash
+# 1) API уже запущен на :8090
+cd mcp-server
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp cursor-mcp.json ../.cursor/mcp.json   # поправьте пути в json при необходимости
+```
+
+В Cursor: Settings → MCP → сервер `otusai-survey`.  
+Проверочные запросы: [`mcp-server/REPORT.md`](mcp-server/REPORT.md).
+
 ### Подтверждение критериев ДЗ
 
 Сводная таблица ссылок (файл/строки tools, debug-лог, примеры): [`agent/CRITERIA.md`](agent/CRITERIA.md).  
@@ -126,6 +145,13 @@ Errors: <ошибка или ->
 │   ├── prompts.py
 │   ├── REPORT.md
 │   ├── PROMPTS.md
+│   └── README.md
+├── mcp-server/          # MCP-сервер для Cursor (HW)
+│   ├── server.py
+│   ├── tools_survey.py
+│   ├── tools_docs.py
+│   ├── cursor-mcp.json
+│   ├── REPORT.md
 │   └── README.md
 ├── Dockerfile
 ├── docker-compose.yml

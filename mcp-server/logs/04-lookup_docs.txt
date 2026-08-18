@@ -1,0 +1,8 @@
+# Клиент: Cursor Agent (этот чат), 2026-08-18 21:49
+# Запрос: Найди в документации, как устроен GET /stats
+# Ожидаемый tool: lookup_docs
+# Trace Cursor: logs/cursor-agent-stdio.log
+# Результат tool: logs/cursor-results/04-lookup_docs.json
+
+2026-08-18 21:49:43.510 Processing request of type CallToolRequest
+[mcp] {"ts": "2026-08-18T18:49:43.510831+00:00", "tool": "lookup_docs", "params": {"topic": "GET /stats"}, "status": "success"}

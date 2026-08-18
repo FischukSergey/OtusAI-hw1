@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "tool": "get_stats",
+  "data": {
+    "total_submissions": 2,
+    "language_counts": {"Go": 1, "Python": 1},
+    "experience_counts": {"1–3 года": 1, "3–5 лет": 1}
+  },
+  "error": null
+}

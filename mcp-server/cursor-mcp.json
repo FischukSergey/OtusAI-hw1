@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "otusai-survey": {
+      "command": "/Users/sergeymac/dev/OtusAI-hw1/mcp-server/.venv/bin/python",
+      "args": ["/Users/sergeymac/dev/OtusAI-hw1/mcp-server/server.py"],
+      "env": {
+        "SURVEY_API_BASE": "http://127.0.0.1:8090"
+      }
+    }
+  }
+}

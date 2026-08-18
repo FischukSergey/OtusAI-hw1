@@ -38,6 +38,8 @@ backend/data/
 # Python
 agent/.venv/
 agent/__pycache__/
+mcp-server/.venv/
+mcp-server/__pycache__/
 **/__pycache__/
 *.pyc
 
