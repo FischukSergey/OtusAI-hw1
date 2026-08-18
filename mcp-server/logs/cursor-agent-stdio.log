@@ -1,0 +1,19 @@
+# Источник: Cursor MCP log
+# ~/Library/Application Support/Cursor/logs/20260817T225232/mcp-server-project-0-OtusAI-hw1-otusai-survey.log
+# Клиент: Cursor Agent chat, 2026-08-18 21:49 (этот чат)
+# Сервер: project-0-OtusAI-hw1-otusai-survey (stdio)
+
+2026-08-18 21:49:43.410 [error] Processing request of type CallToolRequest
+2026-08-18 21:49:43.440 [error] HTTP Request: GET http://127.0.0.1:8090/submissions/1 "HTTP/1.1 200 OK"
+2026-08-18 21:49:43.440 [error] [mcp] {"ts": "2026-08-18T18:49:43.439987+00:00", "tool": "get_submission", "params": {"submission_id": 1}, "status": "success"}
+
+2026-08-18 21:49:43.510 [error] Processing request of type CallToolRequest
+2026-08-18 21:49:43.511 [error] [mcp] {"ts": "2026-08-18T18:49:43.510831+00:00", "tool": "lookup_docs", "params": {"topic": "GET /stats"}, "status": "success"}
+
+2026-08-18 21:49:43.546 [error] Processing request of type CallToolRequest
+2026-08-18 21:49:43.552 [error] HTTP Request: GET http://127.0.0.1:8090/questions "HTTP/1.1 200 OK"
+2026-08-18 21:49:43.552 [error] [mcp] {"ts": "2026-08-18T18:49:43.552456+00:00", "tool": "get_questions", "params": {}, "status": "success"}
+
+2026-08-18 21:49:45.045 [error] Processing request of type CallToolRequest
+2026-08-18 21:49:45.056 [error] HTTP Request: GET http://127.0.0.1:8090/stats "HTTP/1.1 200 OK"
+2026-08-18 21:49:45.056 [error] [mcp] {"ts": "2026-08-18T18:49:45.056512+00:00", "tool": "get_stats", "params": {}, "status": "success"}

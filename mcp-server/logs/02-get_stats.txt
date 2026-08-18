@@ -1,0 +1,9 @@
+# Клиент: Cursor Agent (этот чат), 2026-08-18 21:49
+# Запрос: Какая статистика по анкетам?
+# Ожидаемый tool: get_stats
+# Trace Cursor: logs/cursor-agent-stdio.log
+# Результат tool: logs/cursor-results/02-get_stats.json
+
+2026-08-18 21:49:45.045 Processing request of type CallToolRequest
+2026-08-18 21:49:45.056 HTTP Request: GET http://127.0.0.1:8090/stats "HTTP/1.1 200 OK"
+[mcp] {"ts": "2026-08-18T18:49:45.056512+00:00", "tool": "get_stats", "params": {}, "status": "success"}
